@@ -31,19 +31,19 @@ jobs:
         env:
           SENSINGCLUES_USERNAME: ${{ secrets.SCA_USERNAME }}
           SENSINGCLUES_PASSWORD: ${{ secrets.SCA_PASSWORD }}
-        run: Rscript charcoal_observations.R
+        run: Rscript automation.R
 
       - name: Upload CSV Output
         uses: actions/upload-artifact@v4
         with:
           name: charcoal-data
-          path: charcoal_observations_*.csv
+          path: automation_*.csv
 
       - name: Commit and Push CSV File
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add charcoal_observations_*.csv || echo "No changes to commit"
+          git add automation_*.csv || echo "No changes to commit"
           git diff --cached --exit-code || git commit -m "Add monthly charcoal observations"
           git push || echo "No changes to push"
 
@@ -60,5 +60,5 @@ jobs:
       - name: Move CSV Output to Deployment Path (Local Server)
         run: |
           mkdir -p $DEPLOY_PATH
-          mv charcoal_observations_*.csv $DEPLOY_PATH/
+          mv automation_*.csv $DEPLOY_PATH/
           echo "CSV output saved in $DEPLOY_PATH"
