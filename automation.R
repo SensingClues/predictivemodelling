@@ -13,7 +13,7 @@ if (username == "" || password == "") {
   stop("Error: Missing credentials. Ensure SENSINGCLUES_USERNAME and SENSINGCLUES_PASSWORD are set.")
 }
 
-# Login to Sensing Clues platform
+# Login to Cluey platform
 cookie <- sensingcluesr::login_cluey(username = username, password = password)
 
 # Load charcoal data
