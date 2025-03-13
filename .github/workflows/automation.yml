@@ -34,7 +34,7 @@ jobs:
         run: Rscript charcoal_observations.R
 
       - name: Upload CSV Output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: charcoal-data
           path: charcoal_observations_*.csv
