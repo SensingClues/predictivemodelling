@@ -1,23 +1,28 @@
-
 library(jsonlite)
-
-# load the sensincluesr package
 library(devtools)
+
+# Install the sensingcluesr package from GitHub
 devtools::install_github("sensingclues/sensingcluesr@v1.0.5", upgrade = "never")
 
-# retrieve credentials from json file
-credentials <- jsonlite::fromJSON("credentials-sensingclues.json")
+# Retrieve credentials from environment variables (GitHub Secrets)
+username <- Sys.getenv("SENSINGCLUES_USERNAME")
+password <- Sys.getenv("SENSINGCLUES_PASSWORD")
 
-# login to Sensing Clues platform
-cookie <- sensingcluesr::login_cluey(
-  username = credentials$username,
-  password = credentials$password
-)
+# Ensure credentials exist
+if (username == "" || password == "") {
+  stop("Error: Missing credentials. Ensure SENSINGCLUES_USERNAME and SENSINGCLUES_PASSWORD are set.")
+}
 
-# load charcoal data
+# Login to Sensing Clues platform
+cookie <- sensingcluesr::login_cluey(username = username, password = password)
+
+# Load charcoal data
 df <- sensingcluesr::get_observations(cookie, group = c(), from = Sys.Date() - 30, to = Sys.Date(),
-                                      filteredConcepts = c("https://sensingclues.poolparty.biz/SCCSSOntology/97", # charcoaling
-                                                           "https://sensingclues.poolparty.biz/SCCSSOntology/360")) # kiln
+                                      filteredConcepts = c("https://sensingclues.poolparty.biz/SCCSSOntology/97",
+                                                           "https://sensingclues.poolparty.biz/SCCSSOntology/360"))
 
-# write to file
-write.csv(df, paste0("charcoal_observations_", Sys.Date() - 30, "_", to = Sys.Date(), ".csv"))
+# Write to CSV file
+csv_filename <- paste0("charcoal_observations_", Sys.Date() - 30, "_to_", Sys.Date(), ".csv")
+write.csv(df, csv_filename, row.names = FALSE)
+
+print(paste("File saved:", csv_filename))
