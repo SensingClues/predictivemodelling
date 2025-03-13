@@ -43,13 +43,22 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add charcoal_observations_*.csv
-          git commit -m "Add monthly charcoal observations"
-          git push
+          git add charcoal_observations_*.csv || echo "No changes to commit"
+          git diff --cached --exit-code || git commit -m "Add monthly charcoal observations"
+          git push || echo "No changes to push"
 
-      - name: Move CSV Output to Server Directory
+      - name: Define Deployment Path
+        id: define-path
         run: |
-          mkdir -p ${{ env.core-prod-path }}  # Change to your preferred directory
-          rsync -av --delete charcoal_observations_*.csv ${{ env.core-prod-path }}
-        # mv charcoal_observations_*.csv /deploy/risk-map/
-          echo "CSV output saved in /deploy/risk-map/"
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "DEPLOY_PATH=/deploy/risk-map" >> $GITHUB_ENV
+          else
+          echo "test"
+          fi
+        #echo "DEPLOY_PATH=/deploy/test-env" >> $GITHUB_ENV
+
+      - name: Move CSV Output to Deployment Path (Local Server)
+        run: |
+          mkdir -p $DEPLOY_PATH
+          mv charcoal_observations_*.csv $DEPLOY_PATH/
+          echo "CSV output saved in $DEPLOY_PATH"
