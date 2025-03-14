@@ -19,6 +19,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3  # Ensures we have access to automation.R
 
+      - name: Set Deployment Path
+        run: echo "OUTPUT_DIR=/deploy/risk-map" >> $GITHUB_ENV
+
+      - name: Debug Environment Variables
+        run: |
+          echo "OUTPUT_DIR is: '$OUTPUT_DIR'"
+          ls -ld "$OUTPUT_DIR" || echo "Directory does not exist"
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -39,7 +47,7 @@ jobs:
           docker run --rm \
             -e SENSINGCLUES_USERNAME="${{ secrets.SCA_USERNAME }}" \
             -e SENSINGCLUES_PASSWORD="${{ secrets.SCA_PASSWORD }}" \
-            -v "${{ github.workspace }}/automation.R:/app/automation.R" \  # Mount script
+            -v "${{ github.workspace }}/automation.R:/app/automation.R" \
             -v "$OUTPUT_DIR:/output" \  # Mount output directory
             ${{ env.IMAGE_NAME }} \
             Rscript /app/automation.R  # Execute script inside container
