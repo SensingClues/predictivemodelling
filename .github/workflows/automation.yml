@@ -40,7 +40,7 @@ jobs:
             -e SENSINGCLUES_USERNAME="${{ secrets.SCA_USERNAME }}" \
             -e SENSINGCLUES_PASSWORD="${{ secrets.SCA_PASSWORD }}" \
             -v ${{ github.workspace }}/automation.R:/app/automation.R \  # Mount script
-            -v $OUTPUT_DIR:/output \  # Mount output directory
+            -v "$OUTPUT_DIR:/output" \  # Mount output directory
             ${{ env.IMAGE_NAME }} \
             Rscript /app/automation.R  # Execute script inside container
 
