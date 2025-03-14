@@ -6,59 +6,51 @@ on:
   workflow_dispatch:  # Allows manual trigger
 
 env:
-  # Path to shiny folder on server to deploy to
-  core-prod-path: ${{ github.ref == 'refs/heads/main' && '/deploy/risk-map' }}
+  IMAGE_NAME: ghcr.io/sensingclues/rocker_shiny_custom:latest  # Your GHCR Docker image
+  SCRIPT_PATH: ./automation.R  # Path to your R script in the repository
+  OUTPUT_DIR: /deploy/risk-map  # Path on the server to store the CSV output
 
 jobs:
   run-script:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # Ensure this runs on your self-hosted runner
     environment: prod
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # Ensures we have access to automation.R
 
-      - name: Setup R Environment
-        uses: r-lib/actions/setup-r@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
         with:
-          r-version: '4.1'  # Use the appropriate R version
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Dependencies
-        run: |
-          Rscript -e 'install.packages(c("jsonlite", "devtools"))'
+      - name: Pull the Docker Image
+        run: docker pull ${{ env.IMAGE_NAME }}
 
-      - name: Run R Script
+      - name: Run R Script in Docker
         env:
           SENSINGCLUES_USERNAME: ${{ secrets.SCA_USERNAME }}
           SENSINGCLUES_PASSWORD: ${{ secrets.SCA_PASSWORD }}
-        run: Rscript automation.R
-
-      - name: Upload CSV Output
-        uses: actions/upload-artifact@v4
-        with:
-          name: charcoal-data
-          path: automation_*.csv
-
-      - name: Commit and Push CSV File
         run: |
+          mkdir -p $OUTPUT_DIR
+          docker run --rm \
+            -e SENSINGCLUES_USERNAME="${{ secrets.SCA_USERNAME }}" \
+            -e SENSINGCLUES_PASSWORD="${{ secrets.SCA_PASSWORD }}" \
+            -v ${{ github.workspace }}/automation.R:/app/automation.R \  # Mount script
+            -v $OUTPUT_DIR:/output \  # Mount output directory
+            ${{ env.IMAGE_NAME }} \
+            Rscript /app/automation.R  # Execute script inside container
+
+      - name: Verify Output
+        run: ls -l $OUTPUT_DIR
+
+      - name: Commit and Push CSV File to Repo (Optional)
+        run: |
+          cd $OUTPUT_DIR
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add automation_*.csv || echo "No changes to commit"
+          git add charcoal_observations_*.csv || echo "No new files to commit"
           git diff --cached --exit-code || git commit -m "Add monthly charcoal observations"
           git push || echo "No changes to push"
-
-      - name: Define Deployment Path
-        id: define-path
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          echo "DEPLOY_PATH=/deploy/risk-map" >> $GITHUB_ENV
-          else
-          echo "test"
-          fi
-        #echo "DEPLOY_PATH=/deploy/test-env" >> $GITHUB_ENV
-
-      - name: Move CSV Output to Deployment Path (Local Server)
-        run: |
-          mkdir -p $DEPLOY_PATH
-          mv automation_*.csv $DEPLOY_PATH/
-          echo "CSV output saved in $DEPLOY_PATH"
