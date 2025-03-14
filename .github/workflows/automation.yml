@@ -27,7 +27,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull the Docker Image
-        run: docker pull ${{ env.IMAGE_NAME }}
+        run: |
+          docker pull ${{ env.IMAGE_NAME }}
 
       - name: Run R Script in Docker
         env:
