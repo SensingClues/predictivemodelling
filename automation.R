@@ -16,10 +16,30 @@ if (username == "" || password == "") {
 # Login to Cluey platform
 cookie <- sensingcluesr::login_cluey(username = username, password = password)
 
-# Load charcoal data
+# Ensure login was successful
+if (is.null(cookie) || cookie == "") {
+  stop("Error: Login failed. Check SENSINGCLUES_USERNAME and SENSINGCLUES_PASSWORD.")
+}
+
+print("Successfully logged in.")
+print("Fetching observations from API...")
+
+# Retrieve observations
 df <- sensingcluesr::get_observations(cookie, group = c(), from = Sys.Date() - 30, to = Sys.Date(),
                                       filteredConcepts = c("https://sensingclues.poolparty.biz/SCCSSOntology/97",
                                                            "https://sensingclues.poolparty.biz/SCCSSOntology/360"))
+
+# Debugging: Print the structure of the API response
+print("API Response Structure:")
+print(str(df))
+
+# Ensure data is returned
+if (is.null(df) || nrow(df) == 0) {
+  stop("Error: API returned no data. Check authentication or API response format.")
+}
+
+print("Observations retrieved successfully.")
+print(head(df))  # Print first few rows of data
 
 # Write to CSV file
 csv_filename <- paste0("charcoal_observations_", Sys.Date() - 30, "_to_", Sys.Date(), ".csv")
