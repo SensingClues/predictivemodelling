@@ -24,10 +24,20 @@ if (is.null(cookie) || cookie == "") {
 print("Successfully logged in.")
 print("Fetching observations from API...")
 
-# Retrieve observations
-df <- sensingcluesr::get_observations(cookie, group = c(), from = Sys.Date() - 30, to = Sys.Date(),
-                                      filteredConcepts = c("https://sensingclues.poolparty.biz/SCCSSOntology/97",
-                                                           "https://sensingclues.poolparty.biz/SCCSSOntology/360"))
+print("Calling sensingcluesr::get_observations()...")
+
+# Capture errors if `get_observations` fails
+df <- tryCatch({
+  sensingcluesr::get_observations(cookie, group = c(), from = Sys.Date() - 30, to = Sys.Date(),
+                                  filteredConcepts = c("https://sensingclues.poolparty.biz/SCCSSOntology/97",
+                                                       "https://sensingclues.poolparty.biz/SCCSSOntology/360"))
+}, error = function(e) {
+  print("Error in sensingcluesr::get_observations()")
+  print(e)
+  return(NULL)  # Prevents script from stopping
+})
+
+print("API call completed.")
 
 # Debugging: Print the structure of the API response
 print("API Response Structure:")
