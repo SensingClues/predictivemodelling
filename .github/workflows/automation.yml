@@ -49,7 +49,7 @@ jobs:
             -e SENSINGCLUES_PASSWORD="${{ secrets.SCA_PASSWORD }}" \
             -v "${{ github.workspace }}/automation.R:/app/automation.R" \
             -v "${{ env.OUTPUT_DIR }}:/output" \  # Mount output directory
-            "${{ env.IMAGE_NAME }}" \
+            ${{ env.IMAGE_NAME }} \
             Rscript /app/automation.R  # Execute script inside container
 
       - name: Verify Output
