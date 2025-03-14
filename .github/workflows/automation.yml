@@ -35,7 +35,7 @@ jobs:
           SENSINGCLUES_USERNAME: ${{ secrets.SCA_USERNAME }}
           SENSINGCLUES_PASSWORD: ${{ secrets.SCA_PASSWORD }}
         run: |
-          mkdir -p $OUTPUT_DIR
+          sudo mkdir -p $OUTPUT_DIR
           docker run --rm \
             -e SENSINGCLUES_USERNAME="${{ secrets.SCA_USERNAME }}" \
             -e SENSINGCLUES_PASSWORD="${{ secrets.SCA_PASSWORD }}" \
