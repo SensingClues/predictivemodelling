@@ -39,13 +39,20 @@ jobs:
           docker run --rm \
             -e SENSINGCLUES_USERNAME="${{ secrets.SCA_USERNAME }}" \
             -e SENSINGCLUES_PASSWORD="${{ secrets.SCA_PASSWORD }}" \
-            -v ${{ github.workspace }}/automation.R:/app/automation.R \  # Mount script
+            -v "${{ github.workspace }}/automation.R:/app/automation.R" \  # Mount script
             -v "$OUTPUT_DIR:/output" \  # Mount output directory
             ${{ env.IMAGE_NAME }} \
             Rscript /app/automation.R  # Execute script inside container
 
       - name: Verify Output
-        run: ls -l $OUTPUT_DIR
+        run: |
+          echo "Checking if CSV file was generated..."
+          ls -lh "$OUTPUT_DIR" || echo "No CSV files found!"
+
+      - name: Move CSV Output to Deployment Path
+        run: |
+          sudo mv "$OUTPUT_DIR"/charcoal_observations_*.csv "$OUTPUT_DIR"/ || echo "No files to move"
+          echo "CSV output saved in $OUTPUT_DIR"
 
       - name: Commit and Push CSV File to Repo (Optional)
         run: |
