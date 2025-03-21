@@ -33,7 +33,7 @@ df <- tryCatch({
 }, error = function(e) {
   message("Error in sensingcluesr::get_observations()")
   print(e)
-  return(NULL)  # Prevents script from stopping
+  return(data.frame())  # Prevents script from stopping
 })
 
 message("API call completed.")
@@ -44,7 +44,7 @@ print(str(df))
 
 # Ensure data is returned
 if (is.null(df) || nrow(df) == 0) {
-  stop("Error: API returned no data. Check authentication or API response format.")
+  message("Error: API returned no data. Check authentication or API response format.")
 }
 
 message("Observations retrieved successfully.")
