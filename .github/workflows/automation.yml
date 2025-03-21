@@ -60,12 +60,3 @@ jobs:
         run: |
           sudo mv "$OUTPUT_DIR"/charcoal_observations_*.csv "$OUTPUT_DIR"/ || echo "No files to move"
           echo "CSV output saved in $OUTPUT_DIR"
-
-      - name: Commit and Push CSV File to Repo (Optional)
-        run: |
-          cd $OUTPUT_DIR
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add charcoal_observations_*.csv || echo "No new files to commit"
-          git diff --cached --exit-code || git commit -m "Add monthly charcoal observations"
-          git push || echo "No changes to push"
