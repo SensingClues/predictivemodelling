@@ -21,10 +21,10 @@ if (is.null(cookie) || cookie == "") {
   stop("Error: Login failed. Check SENSINGCLUES_USERNAME and SENSINGCLUES_PASSWORD.")
 }
 
-print("Successfully logged in.")
-print("Fetching observations from API...")
+message("Successfully logged in.")
+message("Fetching observations from API...")
 
-print("Calling sensingcluesr::get_observations()...")
+message("Calling sensingcluesr::get_observations()...")
 
 # Capture errors if `get_observations` fails
 df <- tryCatch({
@@ -32,15 +32,15 @@ df <- tryCatch({
                                   filteredConcepts = c("https://sensingclues.poolparty.biz/SCCSSOntology/97",
                                                        "https://sensingclues.poolparty.biz/SCCSSOntology/360"))
 }, error = function(e) {
-  print("Error in sensingcluesr::get_observations()")
+  message("Error in sensingcluesr::get_observations()")
   print(e)
   return(NULL)  # Prevents script from stopping
 })
 
-print("API call completed.")
+message("API call completed.")
 
 # Debugging: Print the structure of the API response
-print("API Response Structure:")
+message("API Response Structure:")
 print(str(df))
 
 # Ensure data is returned
@@ -48,11 +48,11 @@ if (is.null(df) || nrow(df) == 0) {
   stop("Error: API returned no data. Check authentication or API response format.")
 }
 
-print("Observations retrieved successfully.")
+message("Observations retrieved successfully.")
 print(head(df))  # Print first few rows of data
 
 # Write to CSV file
 csv_filename <- paste0("charcoal_observations_", Sys.Date() - 30, "_to_", Sys.Date(), ".csv")
 write.csv(df, csv_filename, row.names = FALSE)
 
-print(paste("File saved:", csv_filename))
+message(paste("File saved:", csv_filename))
