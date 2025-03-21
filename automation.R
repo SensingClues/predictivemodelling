@@ -17,11 +17,10 @@ if (username == "" || password == "") {
 cookie <- sensingcluesr::login_cluey(username = username, password = password)
 
 # Ensure login was successful
-if (is.null(cookie) || cookie == "") {
+if (is.null(cookie)) {
   stop("Error: Login failed. Check SENSINGCLUES_USERNAME and SENSINGCLUES_PASSWORD.")
 }
 
-message("Successfully logged in.")
 message("Fetching observations from API...")
 
 message("Calling sensingcluesr::get_observations()...")
