@@ -51,7 +51,7 @@ message("Observations retrieved successfully.")
 print(head(df))  # Print first few rows of data
 
 # Write to CSV file
-csv_filename <- paste0("charcoal_observations_", Sys.Date() - 30, "_to_", Sys.Date(), ".csv")
+csv_filename <- paste0("/output/charcoal_observations_", Sys.Date() - 30, "_to_", Sys.Date(), ".csv")
 write.csv(df, csv_filename, row.names = FALSE)
 
 message(paste("File saved:", csv_filename))
